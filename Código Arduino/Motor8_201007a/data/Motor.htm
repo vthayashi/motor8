@@ -1,0 +1,94 @@
+
+<html>
+  <head>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <meta charset="utf-8">
+<script>
+
+function iniciar(){
+	setTimeout(loadList(),100);
+}
+
+function loadList(){
+	xh.open("GET", "/list?dir=/", true);
+	xh.send(null);
+}
+
+var xh = new XMLHttpRequest();
+xh.onreadystatechange = function(){
+  if (xh.readyState == 4){
+    if(xh.status == 200) {
+    var res = JSON.parse(xh.responseText);
+	if(res.length>0){
+		aa=[];for(i in res){aa[aa.length]=res[i].name;}
+		aa.sort();
+		sa='<table id=div01 cellspacing=4>';
+		for(i in aa){
+			sb=aa[i];
+			if(sb.indexOf("data/")==0){
+				sc=sb.substring(5);
+				sc=sc.split(".txt").join("");
+				sc=sc.split("_").join(" ");
+				sa+='<tr><td><input type=button value=Del onclick=del("'+sb+'");></td>';
+				sa+="<td width='160' align='center'><a href='"+sb+"'>"+sc+"</a></td>";
+				sa+="<td><a href='Motor6.htm?path="+sb+"'>Ver</a></td></tr>";
+			}
+		}
+		sa+='</table>';
+		hr1.innerHTML='<hr width="320">';
+		table1.innerHTML=sa;
+	}
+	xh3.open('GET', '/js?fields=fsub,fstb', true); xh3.send(null);
+   }
+  }
+}
+
+var xh2 = new XMLHttpRequest();
+xh2.onreadystatechange = function(){
+  if (xh2.readyState == 4){if(xh2.status == 200) {setTimeout(loadList(),100);} }
+};
+function del(path){
+  if(confirm('Excluir '+path+'?')==true){
+    xh2.open('DELETE', '/edit?path=/'+path, true); xh2.send(null);
+  }
+}
+
+function updateChange(){
+ sb=update.value;
+ if(sb.length<1){submitBtn.disabled=true;}else{submitBtn.disabled=false;}
+}
+
+var xh3 = new XMLHttpRequest();
+xh3.onreadystatechange = function(){
+  if (this.readyState == 4 && this.status == 200){
+	myObj=JSON.parse(this.responseText);
+	if(typeof myObj.fsub!='undefined' && typeof myObj.fstb!='undefined'){
+		fsub=myObj.fsub/1000;
+		fstb=myObj.fstb/1000;
+		ubtb.innerHTML="Armazenamento: "+fsub.toFixed(0)+"KB / "+fstb.toFixed(0)+"KB";
+	}
+  }
+};
+
+</script>
+<style>
+ body{margin:12px 0 0 0;}
+ input{border:none;background-color:white;cursor:hand;font:14px arial;}
+ .custom-file-input::-webkit-file-upload-button {visibility:hidden;width:0;}
+ td{padding:4px 8px 4px 8px;border:solid 1px silver;border-radius:8px;font:16px arial;}
+ a{text-decoration:none;font:16px arial;}
+</style>
+  </head>
+<body onload="iniciar()">
+<div align="center" style="font:18px arial;">Motor6
+<div style="margin:6px 0 0 0;width:160px;padding:4px;border:solid 1px silver;border-radius:15px;">
+<a href='Motor6.htm' style="font:18px arial;">Motor6</a></div>
+<span id="hr1"></span>
+<span id="table1"></span>
+<hr width='320'>
+<a href='/upload'>Arquivos</a> -
+<a href='/update'>Update (Firmware)</a>
+<br><hr width='320'>
+<div id="ubtb" style="font:12px arial;"></div>
+</div></body>
+</html>

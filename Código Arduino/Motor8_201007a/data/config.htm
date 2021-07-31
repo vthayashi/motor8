@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <title></title>
+  <style>
+    body {background-color:black;color:white;font:16px arial;}
+    hr{height: 1px;background-color:gray;border: none;margin:4px;}
+    a{text-decoration:none;}
+    input,select{font:16px arial;padding:4px;border-radius:6px;text-align:center;border:solid 1px gray;padding:4px 6px 4px 6px;}
+    input[type=text],input[type=password]{width:216px;}
+    input[type=button]{min-width:60px;height:30px;}
+    span{text-align:center;}
+    h2{margin:12px 4px 4px 4px;}
+    td{height:32px;}
+ a{text-decoration:none;}
+ a:link{color:silver;}
+ a:visited{color:silver;}
+ a:hover {color: hotpink;}
+  </style>
+  <script type="text/javascript">
+  
+function onBodyLoad(){
+  console.log("we are loaded!!");
+  loadjs0();
+}
+    
+var loaded=true;
+var ser="";
+
+function loadjs0(){
+  sa="fields=time,Versao,DeviceID,localIP,apIP,apPass,essid,epass,ipMode,ntpServer";
+  client.open('GET',"js?"+sa,true);client.send();
+}
+
+function loadjs(){
+  if(loaded){
+    sa=ser; ser="";
+    sa+="fields=time";
+    sa+="&";
+    client.open('GET',"js?"+sa.substring(0,sa.length-1),true);client.send();
+    loaded=false;
+  }
+}
+
+var client=new XMLHttpRequest();
+client.onreadystatechange=function(){
+	if(this.readyState==4){
+		if (this.status==200){
+			myObj=JSON.parse(this.responseText);
+			if(typeof myObj.time!='undefined'){
+				ti=myObj.time; ti*=1000; var d=new Date(ti);
+				ano=d.getUTCFullYear();
+				me=d.getUTCMonth()+1; me="0"+me; me=me.substring(me.length-2);
+				dia=d.getUTCDate(); dia="0"+dia; dia=dia.substring(dia.length-2);
+				ho="0"+d.getUTCHours(); ho=ho.substring(ho.length-2);
+				mi='0'+d.getUTCMinutes(); mi=mi.substring(mi.length-2);
+				se='0'+d.getUTCSeconds(); se=se.substring(se.length-2);
+				datahora.innerHTML=dia+"/"+me+"/"+ano+" "+ho+":"+mi+":"+se;
+			}
+			if(typeof myObj.DeviceID!='undefined'){
+			  DeviceID.value=myObj.DeviceID;
+			  mdns.innerHTML='<a href="http://'+myObj.DeviceID+'.local">http://'+myObj.DeviceID+'.local</a>';
+			  sto=setInterval(loadjs,1000);
+			}
+			if(typeof myObj.apPass!='undefined'){apPass.value=myObj.apPass;}
+			if(typeof myObj.essid!='undefined'){essid.value=myObj.essid;}
+			if(typeof myObj.epass!='undefined'){epass.value=myObj.epass;}
+			if(typeof myObj.Versao!='undefined'){Versao.innerHTML=myObj.Versao;}
+			if(typeof myObj.localIP!='undefined'){localIP.innerHTML='<a href="http://'+myObj.localIP+'">http://'+myObj.localIP+'</a>';}
+			if(typeof myObj.apIP!='undefined'){apIP.value=myObj.apIP;}
+			if(typeof myObj.ipMode!='undefined'){ipMode.value=myObj.ipMode;}
+			//if(typeof myObj.ntpServerIP!='undefined'){ntpServerIP.value=myObj.ntpServerIP;}
+			if(typeof myObj.ntpServer!='undefined'){
+			  ntpServer0.value=myObj.ntpServer[0];
+			  ntpServer1.value=myObj.ntpServer[1];
+			  ntpServer2.value=myObj.ntpServer[2];
+			}
+		}
+	loaded=true;
+	if(Versao.innerHTML.length==0){ sto=setTimeout(loadjs0,1000) }
+	}
+}
+
+function sendTime(){d=new Date();ser+="time="+d.getTime()+"&";}
+function reset(){if(confirm('Reiniciar?')==true){location.href="reset";}}
+			
+  </script>
+</head>
+<body id="index" onload="onBodyLoad()">
+  <div align=center>
+
+  <h2 id=datahora onclick="sendTime();" title="Send Time" style="cursor:pointer;">&nbsp;</h2>
+  
+<hr width=340>
+<form>
+  <table border=0 cellspacing=0 cellpadding=0>
+    <tr><td width=90>Versao</td><td><span id="Versao"></span></td></tr>
+    <tr><td>essid</td><td><input type=text id="essid" name="essid"></td></tr>
+    <tr><td>epass</td><td><input type=password id="epass" name="epass"></td></tr>
+    <tr><td>ipMode</td><td><input type=text id="ipMode" name="ipMode"></td></tr>
+    <tr><td>localIP</td><td><span id="localIP"></span></td></tr>
+    <tr><td>mDNS</td><td><span id="mdns"></span></td></tr>
+  </table>
+  <hr width=320>
+  <table border=0 cellspacing=0 cellpadding=0>
+    <tr><td width=90>DeviceID</td><td><input type=text id="DeviceID" name="DeviceID"></td></tr>
+    <tr><td>apPass</td><td><input type=password id="apPass" name="apPass"></td></tr>
+    <tr><td>apIP</td><td>
+      <!--input type=text id="apIP" name="apIP"-->
+      <select id="apIP" name="apIP" style="width:166px;">
+        <option>192.168.3.1</option>
+        <option>192.168.4.1</option>
+        <option>192.168.5.1</option>
+      </select>
+      <input type=button value=ir onclick="location.href='http://'+apIP.value;">
+    </td></tr>
+  </table>
+  <hr width=320>
+  <table border=0 cellspacing=0 cellpadding=0>
+    <tr><td width=90>ntpServer0</td><td><input type=text id="ntpServer0" name="ntpServer0"></td></tr>
+    <tr><td width=90>ntpServer1</td><td><input type=text id="ntpServer1" name="ntpServer1"></td></tr>
+    <tr><td width=90>ntpServer2</td><td><input type=text id="ntpServer2" name="ntpServer2"></td></tr>
+  </table>
+  <hr width=320>
+  <input type=submit value="Salvar e Reiniciar">
+</form>
+
+<!--hr width=340>
+<a href="edit.htm"><input type=button value="Edit"></a>
+<a href="files.htm"><input type=button value="Arquivos"></a>
+<a href="log.htm"><input type=button value="Log"></a>
+<div style="height:4px;"></div>
+<input type=button value="Reiniciar" onclick="reset();">
+<a href="update"><input type=button value="Update"></a-->
+
+</div>
+</body>
+</html>

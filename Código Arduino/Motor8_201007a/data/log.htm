@@ -1,0 +1,84 @@
+<!--log2.htm-->
+<html>
+  <head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <script>
+    
+      var loaded=true;
+      
+      function onBodyLoad(){
+        var d = new Date(); fn="log/";
+        sa=d.getFullYear()+""; sa=sa.substring(2,4); fn+=sa;
+        sa=d.getMonth() + 1001; sa+=""; sa=sa.substring(2,4); fn+=sa;
+        sa=d.getDate() + 1000; sa+=""; sa=sa.substring(2,4); fn+=sa+".txt";
+        //div01.innerHTML = fn;
+        loadtxt();
+        //setTimeout(load0,100);
+      }
+      
+      function loadtxt(){ctxt.open('GET',fn,true);ctxt.send();}
+      var ctxt=new XMLHttpRequest();
+      ctxt.onreadystatechange=function(){
+      	if(this.readyState==4){
+      		if (this.status==200){
+      		  sa=this.responseText; //sa=sa.split("Versao").join("<b>VERSAO</b>");
+      		  log_recent.innerHTML=sa;
+      		  setTimeout(scrollWin,200);
+      		  sto=setInterval(loadjs,1000);
+      		}else{
+      		  setTimeout(loadtxt,100);
+      		}
+      	}
+      }
+      
+      function loadjs(){
+        if(loaded){
+          sa="fields=time,log_recent";
+          sa+="&";
+          client.open('GET',"js?"+sa.substring(0,sa.length-1),true);client.send();
+          loaded=false;
+        }
+      }
+      
+      var client=new XMLHttpRequest();
+      client.onreadystatechange=function(){
+      	if(this.readyState==4){
+      		if (this.status==200){
+      			myObj=JSON.parse(this.responseText);
+      			if(typeof myObj.time!='undefined'){
+      				ti=myObj.time; ti*=1000; var d=new Date(ti);
+      				ano=d.getUTCFullYear();
+      				me=d.getUTCMonth()+1; me="0"+me; me=me.substring(me.length-2);
+      				dia=d.getUTCDate(); dia="0"+dia; dia=dia.substring(dia.length-2);
+      				ho="0"+d.getUTCHours(); ho=ho.substring(ho.length-2);
+      				mi='0'+d.getUTCMinutes(); mi=mi.substring(mi.length-2);
+      				se='0'+d.getUTCSeconds(); se=se.substring(se.length-2);
+      				datahora.innerHTML=ho+":"+mi+":"+se;
+      			}
+      			if(typeof myObj.log_recent!='undefined'){
+      			  sa=myObj.log_recent; //sa=sa.split("Versao").join("<b>VERSAO</b>");
+      			  //sa=sa.split(";").join("<br>");
+      			  while(sa.indexOf(";;")>=0){
+      			    sb=sa.substring(0,sa.indexOf(";;"))+"\n";
+      			    sa=sa.substring(sa.indexOf(";;")+2);
+      			    if(log_recent.innerHTML.indexOf(sb)<0){
+      			      //if(sb.indexOf("Versao")>0) sb="<b>"+sb+"</b>";
+      			      log_recent.innerHTML+=sb;
+      			      setTimeout(scrollWin,200);
+      			    } 
+      			  }
+      			}
+      		}
+      	  loaded=true;
+      	}
+      }
+function scrollWin(){window.scrollBy(0,20000);}
+    </script>
+  </head>
+  <body onload="onBodyLoad()">
+    <pre id="log_recent" style="margin:2px 2px 0 2px;"></pre>
+    <pre id="datahora" style="margin:0 2px 4px 2px;">&nbsp;</pre>
+  </body>
+</html>
+
